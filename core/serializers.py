@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import Project
+from .models import Project, Conversation
 
 User = get_user_model()
 
@@ -48,4 +48,10 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ("id", "title", "description", "created_at")
+        read_only_fields = ("id", "created_at")
+
+class ConversationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Conversation
+        fields = ("id", "title", "status", "project", "ai_model", "assistant", "created_at")
         read_only_fields = ("id", "created_at")
