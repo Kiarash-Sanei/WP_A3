@@ -1,14 +1,16 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import Project, Conversation
+from .models import Project, Conversation, Assistant
 from .serializers import (
     RegisterSerializer,
     ProfileSerializer,
     EmailOrUsernameTokenSerializer,
     ProjectSerializer,
-    ConversationSerializer
+    ConversationSerializer,
+    AssistantSerializer
 )
-
+from django.db.models import Q
+from .permissions import IsOwnerOrReadOnly
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -50,3 +52,13 @@ class ConversationViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         instance.status = "deleted"
         instance.save()
+
+class AssistantViewSet(viewsets.ModelViewSet):
+    serializer_class = AssistantSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        return Assistant.objects.filter(Q(owner__isnull=True) | Q(owner=self.request.user))
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
