@@ -47,28 +47,24 @@ class EmailOrUsernameTokenSerializer(TokenObtainPairSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        ordering = ["-created_at"]
         fields = ("id", "title", "description", "created_at")
         read_only_fields = ("id", "created_at")
 
 class ConversationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conversation
-        ordering = ["-created_at"]
         fields = ("id", "title", "status", "project", "ai_model", "assistant", "created_at")
         read_only_fields = ("id", "created_at")
 
 class AssistantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assistant
-        ordering = ["-created_at"]
         fields = ("id", "title", "description", "system_prompt", "created_at")
         read_only_fields = ("id", "created_at")
 
 class AIModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = AIModel
-        ordering = ["id"]
         fields = ("id", "name", "provider", "is_active")
         read_only_fields = ("id",)
 
@@ -82,6 +78,5 @@ class MessageSerializer(serializers.ModelSerializer):
 class AttachmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attachment
-        ordering = ["id"]
         fields = ("id", "file", "file_format", "size", "uploaded_at")
         read_only_fields = ("id", "file_format", "size", "uploaded_at")

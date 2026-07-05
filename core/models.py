@@ -25,6 +25,9 @@ class Project(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ["-created_at"]
 
     def __str__(self):
         return self.title
@@ -34,6 +37,9 @@ class AIModel(models.Model):
     name = models.CharField(max_length=100)
     provider = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["id"]
 
     def __str__(self):
         return self.name
@@ -57,6 +63,9 @@ class Assistant(models.Model):
     @property
     def is_public(self):
         return self.owner_id is None
+
+    class Meta:
+        ordering = ["-created_at"]
 
     def __str__(self):
         return self.title
@@ -94,6 +103,9 @@ class Conversation(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-created_at"]
+
     def __str__(self):
         return self.title
 
@@ -126,6 +138,9 @@ class Attachment(models.Model):
     file_format = models.CharField(max_length=50, blank=True)
     size = models.PositiveIntegerField(default=0)  # bytes
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
 
     def __str__(self):
         return self.file.name
