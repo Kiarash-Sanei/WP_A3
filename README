@@ -1,0 +1,65 @@
+# ChatGPT Backend
+
+A ChatGPT-style backend built with **Django** and **Django REST Framework (DRF)**. It handles
+users, projects, conversations, messages (with file attachments), AI-model and assistant
+selection, JWT authentication, subscriptions with daily rate limiting, and quick account
+switching. AI replies are mocked (fixed text that names the selected model).
+
+## Tech stack
+- Django + Django REST Framework
+- SimpleJWT (authentication)
+- drf-spectacular (OpenAPI / Swagger docs)
+- SQLite
+
+## Setup
+
+```bash
+python -m venv venv
+source venv/bin/activate            # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+python manage.py migrate
+python manage.py createsuperuser    # needed to manage AI models
+python manage.py runserver
+```
+
+## API documentation (Swagger)
+
+Interactive docs — browse and test every endpoint here:
+
+**http://127.0.0.1:8000/api/docs/**
+
+Raw OpenAPI schema: `http://127.0.0.1:8000/api/schema/`
+
+### Authenticating in Swagger
+1. `POST /api/auth/register/` to create a user.
+2. `POST /api/auth/login/` to get an `access` token.
+3. Click **Authorize** (top right) and enter `Bearer <access-token>`.
+
+## Endpoints overview
+
+| Area | Endpoint |
+|------|----------|
+| Auth | `POST /api/auth/register/`, `POST /api/auth/login/`, `GET|PATCH /api/auth/profile/` |
+| Account switching | `POST /api/auth/account-link/`, `GET /api/auth/linked-accounts/`, `POST /api/auth/switch/` |
+| Projects | `GET|POST /api/projects/`, `.../<id>/`, `GET /api/projects/<id>/conversations/` |
+| Conversations | `GET|POST /api/conversations/`, `.../<id>/` |
+| Messages | `GET|POST /api/conversations/<id>/messages/` |
+| Attachments | `GET /api/messages/<id>/attachments/` |
+| Assistants | `GET|POST /api/assistants/`, `.../<id>/` |
+| AI models | `GET /api/models/` (read-only; superuser may modify) |
+| Subscription | `GET /api/subscription/status/`, `GET /api/subscription/plans/`, `POST /api/subscription/purchase/` |
+
+## Running tests
+
+```bash
+python manage.py test
+```
+
+48 tests cover authentication, per-user data isolation, soft-delete, the message/mock-reply
+flow, file attachments, subscription limits, throttling, and account switching.
+
+## Notes
+- Free users are limited to 50 messages/day (enforced with DRF throttling); premium users are unlimited.
+- Deleting a conversation is a soft-delete (its status becomes `deleted`; the row is kept).
+- A conversation requires an AI model, so seed at least one (via the admin or superuser `POST /api/models/`) before creating conversations.
