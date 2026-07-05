@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import Project, Conversation, Assistant, AIModel
+from .models import Project, Conversation, Assistant, AIModel, Message
 from .serializers import (
     RegisterSerializer,
     ProfileSerializer,
@@ -9,9 +9,13 @@ from .serializers import (
     ConversationSerializer,
     AssistantSerializer,
     AIModelSerializer,
+    MessageSerializer,
 )
 from django.db.models import Q
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
+from .services import generate_mock_reply
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -68,3 +72,28 @@ class AIModelViewSet(viewsets.ModelViewSet):
     queryset = AIModel.objects.all()
     serializer_class = AIModelSerializer
     permission_classes = [permissions.IsAuthenticated, IsAdminOrReadOnly]
+
+class MessageListCreateView(generics.ListCreateAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_conversation(self):
+        get_object_or_404(Conversation, id=self.kwargs["conversation_id"], user=self.request.user)
+
+    def get_queryset(self):
+        return self.get_conversation().messages.all()
+
+    def create(self, request, *args, **kwargs):
+        conversation = self.get_conversation()
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        content = serializer.validated_data["content"]
+
+        Message.objects.create(
+            conversation=conversation, role=Message.Role.USER, content=content,
+        )
+        reply = generate_mock_reply(conversation, content)
+        assistant_msg = Message.objects.create(
+            conversation=conversation, role=Message.Role.ASSISTANT, content=reply,
+        )
+        return Response(self.get_serializer(assistant_msg).data, status=201)
