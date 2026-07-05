@@ -29,10 +29,10 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
-    permission_class = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return self.get_queryset
+        return Project.objects.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
-        return self.perform_create(serializer)
+        serializer.save(owner=self.request.user)
