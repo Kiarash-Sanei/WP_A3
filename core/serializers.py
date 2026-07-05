@@ -1,0 +1,44 @@
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+User = get_user_model()
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, validators=[validate_password])
+
+    class Meta:
+        model = User
+        fields = ("id", "username", "email", "password", "first_name", "last_name")
+
+    def create(self, validated_data):
+        password = validated_data.pop("password")
+        user = User(**validated_data)
+        user.set_password(password)   # hashes the password; never store it raw
+        user.save()
+        return user
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id", "username", "email",
+            "first_name", "last_name", "subscription_type",
+        )
+        # username can't be changed here; subscription_type only changes via purchase
+        read_only_fields = ("id", "username", "subscription_type")
+
+
+class EmailOrUsernameTokenSerializer(TokenObtainPairSerializer):
+    """Allow login with either username OR email in the same field."""
+
+    def validate(self, attrs):
+        login = attrs.get(self.username_field)
+        if login and "@" in login:
+            match = User.objects.filter(email__iexact=login).first()
+            if match:
+                attrs[self.username_field] = match.get_username()
+        return super().validate(attrs)
