@@ -68,6 +68,7 @@ class AssistantSerializer(serializers.ModelSerializer):
 class AIModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = AIModel
+        ordering = ["id"]
         fields = ("id", "name", "provider", "is_active")
         read_only_fields = ("id",)
 
