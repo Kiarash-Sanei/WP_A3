@@ -16,6 +16,7 @@ from .views import (
     AccountLinkView, 
     LinkedAccountsView, 
     AccountSwitchView,
+    ProjectConversationsView,
 )
 
 router = DefaultRouter()
@@ -35,4 +36,5 @@ urlpatterns = [
     path("auth/account-link/", AccountLinkView.as_view(), name="account-link"),
     path("auth/linked-accounts/", LinkedAccountsView.as_view(), name="linked-accounts"),
     path("auth/switch/", AccountSwitchView.as_view(), name="switch"),
+    path("projects/<int:project_id>/conversations/", ProjectConversationsView.as_view(), name="project-conversations"),
 ] + router.urls

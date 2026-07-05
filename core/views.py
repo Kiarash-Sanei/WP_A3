@@ -198,3 +198,11 @@ class AccountSwitchView(APIView):
             return Response({"detail": "Account not linked"}, status=400)
         refresh = RefreshToken.for_user(link.linked_user)
         return Response({"access": str(refresh.access_token), "refresh": str(refresh)})
+    
+class ProjectConversationsView(generics.ListAPIView):
+    serializer_class = ConversationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        project = get_object_or_404(Project, id=self.kwargs["project_id"], owner=self.request.user)
+        return project.conversations.exclude(status="deleted")
