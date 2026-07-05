@@ -36,20 +36,6 @@ Raw OpenAPI schema: `http://127.0.0.1:8000/api/schema/`
 2. `POST /api/auth/login/` to get an `access` token.
 3. Click **Authorize** (top right) and enter `Bearer <access-token>`.
 
-## Endpoints overview
-
-| Area | Endpoint |
-|------|----------|
-| Auth | `POST /api/auth/register/`, `POST /api/auth/login/`, `GET|PATCH /api/auth/profile/` |
-| Account switching | `POST /api/auth/account-link/`, `GET /api/auth/linked-accounts/`, `POST /api/auth/switch/` |
-| Projects | `GET|POST /api/projects/`, `.../<id>/`, `GET /api/projects/<id>/conversations/` |
-| Conversations | `GET|POST /api/conversations/`, `.../<id>/` |
-| Messages | `GET|POST /api/conversations/<id>/messages/` |
-| Attachments | `GET /api/messages/<id>/attachments/` |
-| Assistants | `GET|POST /api/assistants/`, `.../<id>/` |
-| AI models | `GET /api/models/` (read-only; superuser may modify) |
-| Subscription | `GET /api/subscription/status/`, `GET /api/subscription/plans/`, `POST /api/subscription/purchase/` |
-
 ## Running tests
 
 ```bash
