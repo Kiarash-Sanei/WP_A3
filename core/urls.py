@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import RegisterView, LoginView, ProfileView, ProjectViewSet, ConversationViewSet, AssistantViewSet, AIModelViewSet, MessageListCreateView
+from .views import RegisterView, LoginView, ProfileView, ProjectViewSet, ConversationViewSet, AssistantViewSet, AIModelViewSet, MessageListCreateView, AttachmentListView
 
 router = DefaultRouter()
 router.register("projects", ProjectViewSet, basename="project")
@@ -12,4 +12,5 @@ urlpatterns = [
     path("auth/login/", LoginView.as_view(), name="login"),
     path("auth/profile/", ProfileView.as_view(), name="profile"),
     path("conversations/<int:conversation_id>/messages/", MessageListCreateView.as_view(), name="messages"),
+    path("messages/<int:message_id>/attachments/", AttachmentListView.as_view(), name="attachments"),
 ] + router.urls

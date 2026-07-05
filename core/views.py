@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import Project, Conversation, Assistant, AIModel, Message
+from .models import Project, Conversation, Assistant, AIModel, Message, Attachment
 from .serializers import (
     RegisterSerializer,
     ProfileSerializer,
@@ -10,6 +10,7 @@ from .serializers import (
     AssistantSerializer,
     AIModelSerializer,
     MessageSerializer,
+    AttachmentSerializer,
 )
 from django.db.models import Q
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
@@ -89,11 +90,33 @@ class MessageListCreateView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
         content = serializer.validated_data["content"]
 
-        Message.objects.create(
+        user_msg = Message.objects.create(
             conversation=conversation, role=Message.Role.USER, content=content,
         )
+
+        upload = serializer.validated_data.get("file")
+        if upload:
+            Attachment.objects.create(
+                message=user_msg,
+                file=upload,
+                file_format=upload.content_type or "",
+                size=upload.size,
+            )
+
         reply = generate_mock_reply(conversation, content)
         assistant_msg = Message.objects.create(
             conversation=conversation, role=Message.Role.ASSISTANT, content=reply,
         )
         return Response(self.get_serializer(assistant_msg).data, status=201)
+    
+class AttachmentListView(generics.ListAPIView):
+    serializer_class = AttachmentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        message = get_object_or_404(
+            Message,
+            id=self.kwargs["message_id"],
+            conversation__user=self.request.user,
+        )
+        return message.attachments.all()

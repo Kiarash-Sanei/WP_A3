@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import Project, Conversation, Assistant, AIModel, Message
+from .models import Project, Conversation, Assistant, AIModel, Message, Attachment
 
 User = get_user_model()
 
@@ -69,7 +69,14 @@ class AIModelSerializer(serializers.ModelSerializer):
         read_only_fields = ("id",)
 
 class MessageSerializer(serializers.ModelSerializer):
+    file = serializers.FileField(write_only=True, required=False)
     class Meta:
         model = Message
-        fields = ("id", "role", "content", "created_at")
+        fields = ("id", "role", "content", "created_at", "file")
         read_only_fields = ("id", "role", "created_at")
+
+class AttachmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attachment
+        fields = ("id", "file", "file_format", "size", "uploaded_at")
+        read_only_fields = ("id", "file_format", "size", "uploaded_at")
