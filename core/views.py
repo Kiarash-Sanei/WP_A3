@@ -1,10 +1,11 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView
-
+from .models import Project
 from .serializers import (
     RegisterSerializer,
     ProfileSerializer,
     EmailOrUsernameTokenSerializer,
+    ProjectSerializer,
 )
 
 
@@ -25,3 +26,13 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         # always the logged-in user — no way to read someone else's profile
         return self.request.user
+    
+class ProjectViewSet(viewsets.ModelViewSet):
+    serializer_class = ProjectSerializer
+    permission_class = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.get_queryset
+
+    def perform_create(self, serializer):
+        return self.perform_create(serializer)

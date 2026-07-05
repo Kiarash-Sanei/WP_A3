@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from .models import Project
 
 User = get_user_model()
 
@@ -42,3 +43,9 @@ class EmailOrUsernameTokenSerializer(TokenObtainPairSerializer):
             if match:
                 attrs[self.username_field] = match.get_username()
         return super().validate(attrs)
+    
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ("id", "title", "description", "created_at")
+        read_only_fields = ("id", "created_at")
