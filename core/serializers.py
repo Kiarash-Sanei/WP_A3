@@ -70,6 +70,6 @@ class AIModelSerializer(serializers.ModelSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AIModel
+        model = Message
         fields = ("id", "role", "content", "created_at")
         read_only_fields = ("id", "role", "created_at")

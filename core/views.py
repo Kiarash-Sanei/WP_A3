@@ -78,7 +78,7 @@ class MessageListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_conversation(self):
-        get_object_or_404(Conversation, id=self.kwargs["conversation_id"], user=self.request.user)
+        return get_object_or_404(Conversation, id=self.kwargs["conversation_id"], user=self.request.user)
 
     def get_queryset(self):
         return self.get_conversation().messages.all()
