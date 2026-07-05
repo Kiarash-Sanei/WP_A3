@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import RegisterView, LoginView, ProfileView, ProjectViewSet, ConversationViewSet, AssistantViewSet, AIModelViewSet, MessageListCreateView, AttachmentListView
+from .views import RegisterView, LoginView, ProfileView, ProjectViewSet, ConversationViewSet, AssistantViewSet, AIModelViewSet, MessageListCreateView, AttachmentListView, SubscriptionStatusView
 
 router = DefaultRouter()
 router.register("projects", ProjectViewSet, basename="project")
@@ -13,4 +13,7 @@ urlpatterns = [
     path("auth/profile/", ProfileView.as_view(), name="profile"),
     path("conversations/<int:conversation_id>/messages/", MessageListCreateView.as_view(), name="messages"),
     path("messages/<int:message_id>/attachments/", AttachmentListView.as_view(), name="attachments"),
+    path("subscription/status/", SubscriptionStatusView.as_view(), name="sub-status"),
+    path("subscription/plans/", SubscriptionPlansView.as_view(), name="sub-plans"),
+    path("subscription/purchase/", SubscriptionPurchaseView.as_view(), name="sub-purchase"),
 ] + router.urls

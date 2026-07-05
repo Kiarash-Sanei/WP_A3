@@ -78,5 +78,6 @@ class MessageSerializer(serializers.ModelSerializer):
 class AttachmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attachment
+        ordering = ["id"]
         fields = ("id", "file", "file_format", "size", "uploaded_at")
         read_only_fields = ("id", "file_format", "size", "uploaded_at")

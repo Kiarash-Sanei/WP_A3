@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import Project, Conversation, Assistant, AIModel, Message, Attachment
+from .models import Project, Conversation, Assistant, AIModel, Message, Attachment, User
 from .serializers import (
     RegisterSerializer,
     ProfileSerializer,
@@ -17,6 +17,8 @@ from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from .services import generate_mock_reply
+from rest_framework.views import APIView
+from django.utils import timezone
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -120,3 +122,43 @@ class AttachmentListView(generics.ListAPIView):
             conversation__user=self.request.user,
         )
         return message.attachments.all()
+    
+FREE_DAILY_LIMIT = 50
+
+SUBSCRIPTION_PLANS = [
+    {"id": "premium_monthly", "name": "Premium Monthly", "price": 9.99},
+    {"id": "premium_yearly", "name": "Premium Yearly", "price": 99.0},
+]
+
+class SubscriptionStatusView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if user.subscription_type == "premium":
+            return Response({"subscription_type": "premium", "remaining": "unlimited"})
+        today = timezone.now().date()
+        used = Message.objects.filter(
+            conversation__user=user,
+            role=Message.Role.USER,
+            created_at__date=today,
+        ).count()
+        return Response({"subscription_type": "free", "daily_limit": FREE_DAILY_LIMIT, "used": used, "remaining": FREE_DAILY_LIMIT - used})
+
+class SubscriptionPlansView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        return Response(SUBSCRIPTION_PLANS)
+
+class SubscriptionPurchaseView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+            plan_id = request.data.get("plan_id")
+            plan = next((p for p in SUBSCRIPTION_PLANS if p["id"] == plan_id), None)
+            if plan is None:
+                return Response({"detail": "Invalid plan_id"}, status=400)
+            request.user.subscription_type = "premium"
+            request.user.save()
+            return Response({"subscription_type": "premium", "plan": plan["name"]})
