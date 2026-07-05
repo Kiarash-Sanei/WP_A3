@@ -48,5 +48,5 @@ class ConversationViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def perform_destroy(self, instance):
-        # TODO: DON'T delete the row. Set instance.status to "deleted", then instance.save()
-        Conversation.objects.update(id=instance.id, user=self.request.user, status= 'deleted')
+        instance.status = "deleted"
+        instance.save()
