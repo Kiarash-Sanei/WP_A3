@@ -1,16 +1,17 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import Project, Conversation, Assistant
+from .models import Project, Conversation, Assistant, AIModel
 from .serializers import (
     RegisterSerializer,
     ProfileSerializer,
     EmailOrUsernameTokenSerializer,
     ProjectSerializer,
     ConversationSerializer,
-    AssistantSerializer
+    AssistantSerializer,
+    AIModelSerializer,
 )
 from django.db.models import Q
-from .permissions import IsOwnerOrReadOnly
+from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -62,3 +63,8 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+class AIModelViewSet(viewsets.ModelViewSet):
+    queryset = AIModel.objects.all()
+    serializer_class = AIModelSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrReadOnly]

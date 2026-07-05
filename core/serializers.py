@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import Project, Conversation, Assistant
+from .models import Project, Conversation, Assistant, AIModel
 
 User = get_user_model()
 
@@ -61,3 +61,9 @@ class AssistantSerializer(serializers.ModelSerializer):
         model = Assistant
         fields = ("id", "title", "description", "system_prompt", "created_at")
         read_only_fields = ("id", "created_at")
+
+class AIModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AIModel
+        fields = ("id", "name", "provider", "is_active")
+        read_only_fields = ("id")
