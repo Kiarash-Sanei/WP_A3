@@ -19,6 +19,7 @@ from rest_framework.response import Response
 from .services import generate_mock_reply
 from rest_framework.views import APIView
 from django.utils import timezone
+from .throttling import DailyMessageThrottle
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -110,6 +111,11 @@ class MessageListCreateView(generics.ListCreateAPIView):
             conversation=conversation, role=Message.Role.ASSISTANT, content=reply,
         )
         return Response(self.get_serializer(assistant_msg).data, status=201)
+    
+    def get_throttles(self):
+        if self.request.method == "POST":
+            return [DailyMessageThrottle()]
+        return []
     
 class AttachmentListView(generics.ListAPIView):
     serializer_class = AttachmentSerializer
