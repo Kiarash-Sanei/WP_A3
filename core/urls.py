@@ -13,6 +13,9 @@ from .views import (
     SubscriptionStatusView, 
     SubscriptionPlansView, 
     SubscriptionPurchaseView,
+    AccountLinkView, 
+    LinkedAccountsView, 
+    AccountSwitchView,
 )
 
 router = DefaultRouter()
@@ -29,4 +32,7 @@ urlpatterns = [
     path("subscription/status/", SubscriptionStatusView.as_view(), name="sub-status"),
     path("subscription/plans/", SubscriptionPlansView.as_view(), name="sub-plans"),
     path("subscription/purchase/", SubscriptionPurchaseView.as_view(), name="sub-purchase"),
+    path("auth/account-link/", AccountLinkView.as_view(), name="account-link"),
+    path("auth/linked-accounts/", LinkedAccountsView.as_view(), name="linked-accounts"),
+    path("auth/switch/", AccountSwitchView.as_view(), name="switch"),
 ] + router.urls

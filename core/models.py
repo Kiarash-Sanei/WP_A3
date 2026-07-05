@@ -129,3 +129,10 @@ class Attachment(models.Model):
 
     def __str__(self):
         return self.file.name
+    
+class LinkedAccount(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="linked_accounts")
+    linked_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
+
+    class Meta:
+        unique_together = ("owner", "linked_user")

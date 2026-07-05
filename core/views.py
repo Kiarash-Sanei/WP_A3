@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import Project, Conversation, Assistant, AIModel, Message, Attachment, User
+from .models import Project, Conversation, Assistant, AIModel, Message, Attachment, LinkedAccount
 from .serializers import (
     RegisterSerializer,
     ProfileSerializer,
@@ -20,6 +20,8 @@ from .services import generate_mock_reply
 from rest_framework.views import APIView
 from django.utils import timezone
 from .throttling import DailyMessageThrottle
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -168,3 +170,31 @@ class SubscriptionPurchaseView(APIView):
             request.user.subscription_type = "premium"
             request.user.save()
             return Response({"subscription_type": "premium", "plan": plan["name"]})
+    
+class AccountLinkView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request):
+        target = authenticate(username=request.data.get("username"), password=request.data.get("password"))
+        if target is None:
+            return Response({"detail": "Invalid credentials"}, status=400)
+        if target == request.user:
+            return Response({"detail": "Cannot link your own account"}, status=400)
+        LinkedAccount.objects.get_or_create(owner=request.user, linked_user=target)
+        return Response({"detail": f"Linked {target.username}"}, status=201)
+
+
+class LinkedAccountsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def get(self, request):
+        links = request.user.linked_accounts.all()
+        return Response([{"id": l.linked_user.id, "username": l.linked_user.username} for l in links])
+
+
+class AccountSwitchView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request):
+        link = request.user.linked_accounts.filter(linked_user_id=request.data.get("user_id")).first()
+        if link is None:
+            return Response({"detail": "Account not linked"}, status=400)
+        refresh = RefreshToken.for_user(link.linked_user)
+        return Response({"access": str(refresh.access_token), "refresh": str(refresh)})
