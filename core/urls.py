@@ -1,6 +1,19 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import RegisterView, LoginView, ProfileView, ProjectViewSet, ConversationViewSet, AssistantViewSet, AIModelViewSet, MessageListCreateView, AttachmentListView, SubscriptionStatusView
+from .views import (
+    RegisterView,
+    LoginView, 
+    ProfileView, 
+    ProjectViewSet, 
+    ConversationViewSet, 
+    AssistantViewSet, 
+    AIModelViewSet, 
+    MessageListCreateView, 
+    AttachmentListView, 
+    SubscriptionStatusView, 
+    SubscriptionPlansView, 
+    SubscriptionPurchaseView,
+)
 
 router = DefaultRouter()
 router.register("projects", ProjectViewSet, basename="project")
